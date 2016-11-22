@@ -31,8 +31,9 @@ class DataSource(object):
 
 
 class Syncer:
-    def __init__(self, datasource, secret_file, docname, sheetname):
+    def __init__(self, datasource, domain, secret_file, docname, sheetname):
         self.datasource = datasource
+        self.domain = domain
         self.secret_file = secret_file
         self.sheetname = sheetname
         self.docname = docname
@@ -54,21 +55,24 @@ class Syncer:
         sourcetargetmap = self._readsheet()
 
         Syncer._update_target(langtransmap, sourcetargetmap)
-        Syncer._apply_trans(langtransmap, sourcetargetmap)
+        self._apply_trans(langtransmap, sourcetargetmap)
 
         self._updatesheet(sourcetargetmap)
         self.datasource.importtrans(langtransmap)
 
     def _open_spreadsheet(self):
         gc = self._authorize()
+        logging.info(u'Opening document {}'.format(self.docname))
         return gc.open(self.docname)
 
     def _authorize(self):
         storage = Storage('po-gdoc-syncer', 'user')
         try:
             credentials = storage.get()
+            logging.info(u'Authorizing from keychain')
             return gspread.authorize(credentials)
         except Exception as e:
+            logging.info(u'Initiating new authorization flow')
             flow = client.flow_from_clientsecrets(self.secret_file, 'https://spreadsheets.google.com/feeds',
                                                   redirect_uri='urn:ietf:wg:oauth:2.0:oob')
             auth_uri = flow.step1_get_authorize_url()
@@ -94,7 +98,9 @@ class Syncer:
 
         for row in self.all_values[1:]:
             source = row[self.sourcecol]
-            tag = row[self.tagcol]
+            tag = set(row[self.tagcol].split(u','))
+            tag.discard('OK')
+            tag.discard('UNUSED')
 
             if not source:
                 raise Exception('no source for row: {}'.format(row))
@@ -113,7 +119,7 @@ class Syncer:
 
             if source in sourcetargetmap:
                 targetmap = sourcetargetmap[source]
-                newtag = targetmap['tag']
+                newtag = ','.join(sorted(targetmap['tag'])) or 'UNUSED'
                 if tag != newtag:
                     logging.info(u'Setting tag of {}: {}'.format(source, newtag))
                     self.worksheet.update_cell(rownum + 2, self.tagcol + 1, newtag)
@@ -130,10 +136,13 @@ class Syncer:
         for source, targetmap in sourcetargetmap.iteritems():
             row = [None] * len(self.all_values[0])
             row[self.sourcecol] = source
-            row[self.tagcol] = targetmap['tag']
+            row[self.tagcol] = ','.join(sorted(targetmap['tag'])) or 'UNUSED'
 
             for target, value in targetmap.iteritems():
                 if target == 'tag':
+                    continue
+                if target not in self.targetcolmap:
+                    logging.warn(u'Ignoring {}: no column'.format(target))
                     continue
                 row[self.targetcolmap[target]] = value
             logging.info(u'Appending row of {}'.format(source))
@@ -145,24 +154,22 @@ class Syncer:
             for key, trans in transmap.iteritems():
                 target = 'target-' + lang
                 if key not in sourcetargetmap:
-                    sourcetargetmap[key] = {}
+                    sourcetargetmap[key] = {'tag': set()}
                 if target not in sourcetargetmap[key]:
                     sourcetargetmap[key][target] = ''
 
                 if trans and not sourcetargetmap[key][target]:
                     sourcetargetmap[key][target] = trans
 
-    @staticmethod
-    def _apply_trans(langtransmap, sourcetargetmap):
+    def _apply_trans(self, langtransmap, sourcetargetmap):
         for source, targetmap in sourcetargetmap.iteritems():
-            targetmap['tag'] = 'UNUSED'
             for target, value in targetmap.iteritems():
                 if target == 'tag':
                     continue
 
                 lang = target[7:]
                 if lang in langtransmap and source in langtransmap[lang]:
-                    targetmap['tag'] = 'OK'
+                    targetmap['tag'].add(self.domain)
                     if value and value != '$needs translation$$':
                         langtransmap[lang][source] = value
 
