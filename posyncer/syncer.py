@@ -134,7 +134,7 @@ class Syncer:
                 del sourcetargetmap[source]
 
         for source, targetmap in sourcetargetmap.iteritems():
-            row = [None] * len(self.all_values[0])
+            row = [''] * len(self.all_values[0])
             row[self.sourcecol] = source
             row[self.tagcol] = ','.join(sorted(targetmap['tag'])) or 'UNUSED'
 
