@@ -4,7 +4,7 @@ import os
 
 import sys
 
-from .po import PoDataSource
+from .po import PoDataSource, ContextPoDataSource
 from .syncer import Syncer
 
 
@@ -15,8 +15,9 @@ def main():
     sheet = None
     secret = None
     verbose = False
+    use_context = False
 
-    opts, args = getopt.getopt(sys.argv[1:], 'o:', ['podir=', 'domain=', 'secret=', 'doc=', 'sheet=', 'verbose'])
+    opts, args = getopt.getopt(sys.argv[1:], 'o:', ['android', 'podir=', 'domain=', 'secret=', 'doc=', 'sheet=', 'verbose'])
     for o, a in opts:
         if o in ('--podir', ):
             podir = a
@@ -30,6 +31,8 @@ def main():
             sheet = a
         elif o in ('--verbose', ):
             verbose = True
+        elif o in ('--android', ):
+            use_context = True
 
     if podir is None or secret is None or doc is None or sheet is None:
         raise Exception('no podir, secret, doc nor sheet')
@@ -42,7 +45,10 @@ def main():
     else:
         logging.getLogger().setLevel(logging.INFO)
 
-    datasource = PoDataSource(podir)
+    if use_context:
+        datasource = ContextPoDataSource(podir)
+    else:
+        datasource = PoDataSource(podir)
     Syncer(datasource, domain, secret, doc, sheet).run()
 
 if __name__ == '__main__':
