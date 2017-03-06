@@ -1,0 +1,36 @@
+# Korean translations for PROJECT.
+# Copyright (C) 2017 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2017.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2017-03-06 14:51+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: ko <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ko\n"
+"Plural-Forms: nplurals=1; plural=(0)\n"
+"Generated-By: Babel 2.3.4\n"
+
+msgctxt "app_name"
+msgid "Peachy"
+msgstr "PEACHY"
+
+msgctxt "gallery_album_name"
+msgid "Peachy"
+msgstr "PEACHY"
+
+msgctxt "title_activity_main"
+msgid "Peachy"
+msgstr "PEACHY"
+
+msgctxt "action_settings"
+msgid "Settings"
+msgstr "설정"

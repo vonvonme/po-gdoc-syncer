@@ -1,0 +1,29 @@
+# Translations template for PROJECT.
+# Copyright (C) 2016 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.3.4\n"
+
+#: wink/chatbot.py:168
+msgid "오케이 쿨.. 다음에 좋은 소식 있으면 알려줄게!"
+msgstr ""
+
+#: wink/chatbot.py:171
+msgid "다음에 친구를 사귀고 싶다면 언제든 나에게 말을 걸어줘!"
+msgstr ""
+
+#: wink/chatbot.py:189
+msgid "음... 내가 대답할 수 없는 내용인데.. 일단 내 질문에 대답해줄 수 있겠니?"
+msgstr ""
