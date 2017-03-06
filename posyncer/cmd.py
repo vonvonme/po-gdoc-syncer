@@ -15,9 +15,9 @@ def main():
     sheet = None
     secret = None
     verbose = False
-    use_context = False
+    use_ctxt = False
 
-    opts, args = getopt.getopt(sys.argv[1:], 'o:', ['android', 'podir=', 'domain=', 'secret=', 'doc=', 'sheet=', 'verbose'])
+    opts, args = getopt.getopt(sys.argv[1:], 'o:', ['use-ctxt', 'podir=', 'domain=', 'secret=', 'doc=', 'sheet=', 'verbose'])
     for o, a in opts:
         if o in ('--podir', ):
             podir = a
@@ -31,8 +31,8 @@ def main():
             sheet = a
         elif o in ('--verbose', ):
             verbose = True
-        elif o in ('--android', ):
-            use_context = True
+        elif o in ('--use-ctxt', ):
+            use_ctxt = True
 
     if podir is None or secret is None or doc is None or sheet is None:
         raise Exception('no podir, secret, doc nor sheet')
@@ -45,7 +45,7 @@ def main():
     else:
         logging.getLogger().setLevel(logging.INFO)
 
-    if use_context:
+    if use_ctxt:
         datasource = ContextPoDataSource(podir)
     else:
         datasource = PoDataSource(podir)
