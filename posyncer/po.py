@@ -8,14 +8,10 @@ from .syncer import DataSource
 
 
 class PoDataSource(DataSource):
-    pomap = {}
-
     def __init__(self, podir):
-        self.podir = podir
-        self.__read()
-
-    def __read(self):
         self.pomap = {}
+        self.podir = podir
+
         for pofile in glob.glob(os.path.join(self.podir, '*.po')):
             po = polib.pofile(pofile)
             lang = os.path.splitext(os.path.basename(pofile))[0]
