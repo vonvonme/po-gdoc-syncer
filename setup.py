@@ -18,6 +18,7 @@ setup(
     install_requires=[
         'polib==1.0.7',
         'gspread==0.4.1',
-        'oauth2client==2.2.0'
+        'oauth2client==2.2.0',
+		'keyring==9.3.1'
     ]
 )
