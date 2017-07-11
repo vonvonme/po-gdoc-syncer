@@ -98,7 +98,7 @@ class Syncer:
 
         for row in self.all_values[1:]:
             source = row[self.sourcecol]
-            tag = set(row[self.tagcol].split(u','))
+            tag = set(filter(None, row[self.tagcol].split(u',')))
             tag.discard('OK')
             tag.discard('UNUSED')
 
