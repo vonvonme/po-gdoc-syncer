@@ -98,9 +98,11 @@ class Syncer:
 
         for row in self.all_values[1:]:
             source = row[self.sourcecol]
-            tag = set(filter(None, row[self.tagcol].split(u',')))
+            tag = set(row[self.tagcol].split(u','))
+            tag.discard('')
             tag.discard('OK')
             tag.discard('UNUSED')
+            tag.discard(self.domain)
 
             if not source:
                 raise Exception('no source for row: {}'.format(row))
