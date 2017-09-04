@@ -5,50 +5,63 @@ import os
 import sys
 
 from .po import PoDataSource, ContextPoDataSource
+from .xliff import XliffDataSource
 from .syncer import Syncer
+
+
+SRC_TYPE_PO = 'po'
+SRC_TYPE_PO_CONTEXT = 'poctxt'
+SRC_TYPE_XLIFF = 'xliff'
 
 
 def main():
     doc = None
-    podir = None
+    src_type = 'po'
+    src_dir = None
     domain = None
     sheet = None
     secret = None
     verbose = False
-    use_ctxt = False
 
-    opts, args = getopt.getopt(sys.argv[1:], 'o:', ['use-ctxt', 'podir=', 'domain=', 'secret=', 'doc=', 'sheet=', 'verbose'])
+    opts, args = getopt.getopt(sys.argv[1:], 'o:', ['src-type=', 'src-dir=', 'use-ctxt', 'podir=', 'domain=', 'secret=', 'doc=', 'sheet=', 'verbose'])
     for o, a in opts:
-        if o in ('--podir', ):
-            podir = a
-        elif o in ('--domain', ):
+        if o == '--src-type':
+            src_type = a
+        elif o == '--use-ctxt':
+            src_type = SRC_TYPE_PO_CONTEXT
+        elif o in {'--src-dir', '--podir'}:
+            src_dir = a
+        elif o == '--domain':
             domain = a
-        elif o in ('--secret', ):
+        elif o == '--secret':
             secret = a
-        elif o in ('--doc', ):
+        elif o == '--doc':
             doc = a
-        elif o in ('--sheet', ):
+        elif o == '--sheet':
             sheet = a
-        elif o in ('--verbose', ):
+        elif o == '--verbose':
             verbose = True
-        elif o in ('--use-ctxt', ):
-            use_ctxt = True
 
-    if podir is None or secret is None or doc is None or sheet is None:
-        raise Exception('no podir, secret, doc nor sheet')
+    if src_dir is None or secret is None or doc is None or sheet is None:
+        raise Exception('no src-dir, secret, doc nor sheet')
 
     if domain is None:
-        domain = os.path.basename(podir)
+        domain = os.path.basename(src_dir)
     
     if verbose:
         logging.getLogger().setLevel(logging.DEBUG)
     else:
         logging.getLogger().setLevel(logging.INFO)
 
-    if use_ctxt:
-        datasource = ContextPoDataSource(podir)
+    if src_type == SRC_TYPE_PO:
+        datasource = PoDataSource(src_dir)
+    elif src_type == SRC_TYPE_PO_CONTEXT:
+        datasource = ContextPoDataSource(src_dir)
+    elif src_type == SRC_TYPE_XLIFF:
+        datasource = XliffDataSource(src_dir)
     else:
-        datasource = PoDataSource(podir)
+        raise Exception('unknown src-type: {}'.format(src_type))
+
     Syncer(datasource, domain, secret, doc, sheet).run()
 
 if __name__ == '__main__':

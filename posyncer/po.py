@@ -43,8 +43,6 @@ class PoDataSource(DataSource):
 
 
 class ContextPoDataSource(DataSource):
-    pomap = {}
-
     def __init__(self, podir):
         self.pomap = {}
         self.podir = podir

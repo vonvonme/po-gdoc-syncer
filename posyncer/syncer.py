@@ -30,6 +30,20 @@ class DataSource(object):
         raise NotImplementedError('Should have implemented this')
 
 
+def _encode_sheet_text(text):
+    if text.startswith('+'):
+        return "'" + text
+    return text
+
+
+def _decode_sheet_text(sheet_text):
+    if sheet_text.startswith("'"):
+        text = sheet_text[1:]
+        if text.startswith('+'):
+            return text
+    return sheet_text
+
+
 class Syncer:
     def __init__(self, datasource, domain, secret_file, docname, sheetname):
         self.datasource = datasource
@@ -109,8 +123,7 @@ class Syncer:
 
             sourcetargetmap[source] = {'tag': tag}
             for target, col in self.targetcolmap.iteritems():
-                value = row[col]
-                sourcetargetmap[source][target] = value
+                sourcetargetmap[source][target] = _decode_sheet_text(row[col])
 
         return sourcetargetmap
 
@@ -137,7 +150,7 @@ class Syncer:
 
         for source, targetmap in sourcetargetmap.iteritems():
             row = [''] * len(self.all_values[0])
-            row[self.sourcecol] = source
+            row[self.sourcecol] = _encode_sheet_text(source)
             row[self.tagcol] = ','.join(sorted(targetmap['tag'])) or 'UNUSED'
 
             for target, value in targetmap.iteritems():
@@ -146,7 +159,7 @@ class Syncer:
                 if target not in self.targetcolmap:
                     logging.warn(u'Ignoring {}: no column'.format(target))
                     continue
-                row[self.targetcolmap[target]] = value
+                row[self.targetcolmap[target]] = _encode_sheet_text(value)
             logging.info(u'Appending row of {}'.format(source))
             self.worksheet.append_row(row)
 
@@ -172,6 +185,5 @@ class Syncer:
                 lang = target[7:]
                 if lang in langtransmap and source in langtransmap[lang]:
                     targetmap['tag'].add(self.domain)
-                    if value and value != '$needs translation$$':
+                    if value and value != '$$needs translation$$':
                         langtransmap[lang][source] = value
-
