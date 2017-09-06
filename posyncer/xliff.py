@@ -40,30 +40,28 @@ def _is_excluded_id(trans_id):
 def _is_special_key(key):
     if len(key.strip()) == 0:
         return True
-    elif key.startswith('$('):
-        return True
-    elif key.startswith('[D] '):
-        return True
     return False
 
 
 def _import_special_key(key):
-    if key.startswith('$('):
-        return None
-    elif key.startswith('[D] '):
-        return key[4:]
     return key
 
 
 def _is_special_trans(trans):
     if trans == '$$no translation$$':
         return True
+    elif trans.startswith('~$('):
+        return True
     return False
 
 
 def _apply_special_trans(key, trans, langtransmap):
-    if trans == '$$no translation$$':
+    if key.startswith('$(') and trans == '$$no translation$$':
+        return None
+    elif trans == '$$no translation$$':
         return key
+    elif trans.startswith('~$('):
+        return None
     return langtransmap.get('en', {}).get(key, key)
 
 
@@ -97,7 +95,7 @@ class XliffDataSource(DataSource):
                     if _is_special_key(key):
                         continue
 
-                    if trans.startswith('~'):
+                    if trans is None or trans.startswith('~'):
                         trans = ''
 
                     if key == trans:
@@ -138,15 +136,16 @@ class XliffDataSource(DataSource):
                                     target = ET.SubElement(trans_unit, _get_tag('target'))
                                 target.text = trans
                         else:
-                            if target is None:
-                                target = ET.SubElement(trans_unit, _get_tag('target'))
                             trans = transmap.get(key) or u'~{}'.format(key)
                             if _is_special_trans(trans):
                                 trans = _apply_special_trans(key, trans, langtransmap)
-                            oldtrans = target.text
-                            if oldtrans != trans:
-                                logging.info(u'[{}] Updating xliff of {}: {} -> {}'.format(lang, key, oldtrans, trans))
-                                target.text = trans
+                            if trans is not None:
+                                if target is None:
+                                    target = ET.SubElement(trans_unit, _get_tag('target'))
+                                oldtrans = target.text
+                                if oldtrans != trans:
+                                    logging.info(u'[{}] Updating xliff of {}: {} -> {}'.format(lang, key, oldtrans, trans))
+                                    target.text = trans
 
             if len(en_update_map) > 0:
                 continue
