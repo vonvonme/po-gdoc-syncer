@@ -40,6 +40,8 @@ def _is_excluded_id(trans_id):
 def _is_special_key(key):
     if len(key.strip()) == 0:
         return True
+    if key.startswith('~'):
+        return True
     return False
 
 
@@ -123,7 +125,7 @@ class XliffDataSource(DataSource):
 
                         if lang == 'en':
                             trans = transmap.get(key)
-                            if _is_special_trans(trans):
+                            if trans is not None and _is_special_trans(trans):
                                 continue
                             if trans and key != trans:
                                 en_update_map[key] = trans
@@ -137,7 +139,7 @@ class XliffDataSource(DataSource):
                                 target.text = trans
                         else:
                             trans = transmap.get(key) or u'~{}'.format(key)
-                            if _is_special_trans(trans):
+                            if trans is not None and _is_special_trans(trans):
                                 trans = _apply_special_trans(key, trans, langtransmap)
                             if trans is not None:
                                 if target is None:
