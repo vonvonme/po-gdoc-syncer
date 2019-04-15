@@ -73,7 +73,9 @@ class XliffDataSource(DataSource):
         self.xliffdir = xliffdir
 
         ET.register_namespace('', _XLIFF_NAMESPACE)
-        for file_path in glob.glob(os.path.join(self.xliffdir, '*.xliff')):
+        file_paths = glob.glob(os.path.join(self.xliffdir, '*.xliff'))
+        file_paths += glob.glob(os.path.join(self.xliffdir, '*.xcloc', 'Localized Contents', '*.xliff')) # Xcode 10
+        for file_path in file_paths:
             lang = os.path.splitext(os.path.basename(file_path))[0]
             tree = ET.parse(file_path)
             self.treemap[lang] = tree
@@ -153,6 +155,9 @@ class XliffDataSource(DataSource):
                 continue
 
             file_path = os.path.join(self.xliffdir, lang + ".xliff")
+            file_path2 = os.path.join(self.xliffdir, lang + '.xcloc', 'Localized Contents', lang + '.xliff') # Xcode 10
+            if not os.path.exists(file_path) and os.path.exists(file_path2):
+                file_path = file_path2
             tree.write(file_path, encoding='UTF-8', xml_declaration=True)
 
         if len(en_update_map) > 0:
